@@ -374,16 +374,17 @@ class TestOllamaIntegration:
         assert "embedding_similarity" not in factors_without
         assert factors_without["text_similarity"] < 1.0
 
+        comparable_with = {
+            "object_type", "category", "color",
+            "text_similarity", "location", "temporal",
+        }
+        comparable_weight_with = sum(WEIGHTS[k] for k in comparable_with)
         expected_score_with = (
-            factors_with["object_type"] * WEIGHTS["object_type"] +
-            factors_with["category"] * WEIGHTS["category"] +
-            factors_with["color"] * WEIGHTS["color"] +
-            factors_with["brand"] * WEIGHTS["brand"] +
-            factors_with["text_similarity"] * WEIGHTS["text_similarity"] +
-            factors_with["image_similarity"] * WEIGHTS["image_similarity"] +
-            factors_with["location"] * WEIGHTS["location"] +
-            factors_with["temporal"] * WEIGHTS["temporal"]
+            sum(factors_with[k] * WEIGHTS[k] for k in comparable_with)
+            / comparable_weight_with
         )
+        if comparable_weight_with < 0.40:
+            expected_score_with *= comparable_weight_with / 0.40
         expected_score_with = max(0.0, min(1.0, expected_score_with))
 
         assert abs(score_with - expected_score_with) < 0.001

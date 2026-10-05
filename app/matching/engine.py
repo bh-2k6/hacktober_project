@@ -15,6 +15,8 @@ WEIGHTS = {
     "temporal": 0.05,
 }
 
+MINIMUM_COMPARABLE_WEIGHT = 0.40
+
 SIMILAR_COLORS = {
     "black": ["gray", "charcoal", "dark"],
     "white": ["silver", "cream", "light"],
@@ -139,65 +141,94 @@ def compute_match_score(
     found_item: dict,
 ) -> Tuple[float, dict]:
     factors = {}
+    comparable = set()
 
-    obj_type_sim = _string_similarity(
-        lost_item.get("object_type", ""),
-        found_item.get("object_type", ""),
-    )
-    factors["object_type"] = obj_type_sim
+    lost_val = lost_item.get("object_type", "")
+    found_val = found_item.get("object_type", "")
+    if lost_val and found_val:
+        factors["object_type"] = _string_similarity(lost_val, found_val)
+        comparable.add("object_type")
+    else:
+        factors["object_type"] = 0.0
 
-    cat_sim = _string_similarity(
-        lost_item.get("category", ""),
-        found_item.get("category", ""),
-    )
-    factors["category"] = cat_sim
+    lost_val = lost_item.get("category", "")
+    found_val = found_item.get("category", "")
+    if lost_val and found_val:
+        factors["category"] = _string_similarity(lost_val, found_val)
+        comparable.add("category")
+    else:
+        factors["category"] = 0.0
 
-    color_sim = _color_similarity(
-        lost_item.get("color", ""),
-        found_item.get("color", ""),
-    )
-    factors["color"] = color_sim
+    lost_val = lost_item.get("color", "")
+    found_val = found_item.get("color", "")
+    if lost_val and found_val:
+        factors["color"] = _color_similarity(lost_val, found_val)
+        comparable.add("color")
+    else:
+        factors["color"] = 0.0
 
-    brand_sim = _string_similarity(
-        lost_item.get("brand", ""),
-        found_item.get("brand", ""),
-    )
-    factors["brand"] = brand_sim
+    lost_val = lost_item.get("brand", "")
+    found_val = found_item.get("brand", "")
+    if lost_val and found_val:
+        factors["brand"] = _string_similarity(lost_val, found_val)
+        comparable.add("brand")
+    else:
+        factors["brand"] = 0.0
 
     lost_embedding = lost_item.get("embedding")
     found_embedding = found_item.get("embedding")
+    lost_text = (lost_item.get("description", "") or "") + " " + (lost_item.get("title", "") or "")
+    found_text = (found_item.get("description", "") or "") + " " + (found_item.get("title", "") or "")
 
     if lost_embedding and found_embedding:
         factors["embedding_similarity"] = _embedding_similarity(lost_embedding, found_embedding)
         factors["text_similarity"] = factors["embedding_similarity"]
+        comparable.add("text_similarity")
+    elif lost_text.strip() and found_text.strip():
+        factors["text_similarity"] = _jaccard_similarity(lost_text, found_text)
+        comparable.add("text_similarity")
     else:
-        factors["text_similarity"] = _jaccard_similarity(
-            lost_item.get("description", "") + " " + lost_item.get("title", ""),
-            found_item.get("description", "") + " " + found_item.get("title", ""),
-        )
+        factors["text_similarity"] = 0.0
 
-    img_sim = _ahash_similarity(
-        lost_item.get("image_phash", ""),
-        found_item.get("image_phash", ""),
-    )
-    factors["image_similarity"] = img_sim
+    lost_val = lost_item.get("image_phash", "")
+    found_val = found_item.get("image_phash", "")
+    if lost_val and found_val:
+        factors["image_similarity"] = _ahash_similarity(lost_val, found_val)
+        comparable.add("image_similarity")
+    else:
+        factors["image_similarity"] = 0.0
 
-    loc_sim = _location_similarity(
-        lost_item.get("location", ""),
-        found_item.get("location", ""),
-    )
-    factors["location"] = loc_sim
+    lost_val = lost_item.get("location", "")
+    found_val = found_item.get("location", "")
+    if lost_val and found_val:
+        factors["location"] = _location_similarity(lost_val, found_val)
+        comparable.add("location")
+    else:
+        factors["location"] = 0.0
 
-    time_sim = _temporal_similarity(
-        lost_item.get("date_time", ""),
-        found_item.get("date_time", ""),
-    )
-    factors["temporal"] = time_sim
+    lost_val = lost_item.get("date_time", "")
+    found_val = found_item.get("date_time", "")
+    if lost_val and found_val:
+        factors["temporal"] = _temporal_similarity(lost_val, found_val)
+        comparable.add("temporal")
+    else:
+        factors["temporal"] = 0.0
 
-    score = sum(factors[k] * WEIGHTS[k] for k in WEIGHTS)
-    score = max(0.0, min(1.0, score))
+    comparable_weight = sum(WEIGHTS[k] for k in comparable)
 
-    return score, factors
+    if comparable_weight == 0:
+        return 0.0, factors
+
+    raw_score = sum(factors[k] * WEIGHTS[k] for k in comparable) / comparable_weight
+
+    if comparable_weight < MINIMUM_COMPARABLE_WEIGHT:
+        final_score = raw_score * (comparable_weight / MINIMUM_COMPARABLE_WEIGHT)
+    else:
+        final_score = raw_score
+
+    final_score = max(0.0, min(1.0, final_score))
+
+    return final_score, factors
 
 
 def generate_explanation(factors: dict, lost_item: dict, found_item: dict) -> str:
