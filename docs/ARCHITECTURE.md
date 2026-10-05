@@ -2,7 +2,7 @@
 
 ## Overview
 
-AI Lost & Found is a single-process web application built with FastAPI. It uses a clean modular architecture with clear separation between UI, API, database, AI provider, and matching engine.
+TraceBack is a single-process web application built with FastAPI. It uses a clean modular architecture with clear separation between UI, API, database, AI provider, and matching engine.
 
 ## System Architecture
 

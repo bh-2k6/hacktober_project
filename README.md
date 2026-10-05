@@ -1,4 +1,4 @@
-# AI Lost & Found
+# TraceBack
 
 AI-powered lost and found matching system for college campuses. Uses open-weight multimodal AI to automatically identify potential matches between lost and found reports.
 

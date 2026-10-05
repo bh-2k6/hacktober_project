@@ -2,7 +2,7 @@
 
 ## Overview
 
-AI Lost & Found uses open-weight AI models as a core component of its functionality. The AI is not a chatbot add-on — it is the engine that understands images, extracts structured information, and drives the matching system.
+TraceBack uses open-weight AI models as a core component of its functionality. The AI is not a chatbot add-on — it is the engine that understands images, extracts structured information, and drives the matching system.
 
 ## AI Models
 

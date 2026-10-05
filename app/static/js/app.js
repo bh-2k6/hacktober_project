@@ -89,8 +89,8 @@ function getItemImage(item) {
     if (item.image_path) {
         return `<img src="${item.image_path}" alt="${escapeHtml(item.title)}" class="item-card-image">`;
     }
-    const icons = { electronics: '📱', clothing: '👕', accessories: '👜', books: '📚', sports: '⚽', other: '📦' };
-    const icon = icons[item.category] || '📦';
+    const icons = { electronics: 'E', clothing: 'C', accessories: 'A', books: 'B', sports: 'S', other: 'O' };
+    const icon = icons[item.category] || 'O';
     return `<div class="item-card-image-placeholder">${icon}</div>`;
 }
 
@@ -108,22 +108,18 @@ function renderDashboard() {
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">🔴</div>
                 <div class="stat-value">${s.total_lost}</div>
                 <div class="stat-label">Lost Items</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">🟢</div>
                 <div class="stat-value">${s.total_found}</div>
                 <div class="stat-label">Found Items</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">🔗</div>
                 <div class="stat-value">${s.pending_matches}</div>
                 <div class="stat-label">Potential Matches</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">✅</div>
                 <div class="stat-value">${s.reunited_items}</div>
                 <div class="stat-label">Reunited Items</div>
             </div>
@@ -133,13 +129,13 @@ function renderDashboard() {
             <div class="card">
                 <div class="card-header">Recent Items</div>
                 <div class="card-body">
-                    ${recentItems.length ? `<div class="items-grid" style="grid-template-columns: 1fr;">${recentItems.map(item => renderItemCard(item)).join('')}</div>` : '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No items yet</div></div>'}
+                    ${recentItems.length ? `<div class="items-grid" style="grid-template-columns: 1fr;">${recentItems.map(item => renderItemCard(item)).join('')}</div>` : '<div class="empty-state"><div class="empty-state-text">No items yet</div></div>'}
                 </div>
             </div>
             <div class="card">
                 <div class="card-header">Recent Matches</div>
                 <div class="card-body">
-                    ${recentMatches.length ? recentMatches.map(m => renderMatchCard(m, true)).join('') : '<div class="empty-state"><div class="empty-state-icon">🔗</div><div class="empty-state-text">No matches yet</div></div>'}
+                    ${recentMatches.length ? recentMatches.map(m => renderMatchCard(m, true)).join('') : '<div class="empty-state"><div class="empty-state-text">No matches yet</div></div>'}
                 </div>
             </div>
         </div>
@@ -149,17 +145,14 @@ function renderDashboard() {
             <div class="card-body">
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
                     <div style="padding: 20px;">
-                        <div style="font-size: 2.5rem; margin-bottom: 12px;">📤</div>
                         <h3 style="margin-bottom: 8px;">1. Report</h3>
                         <p style="color: var(--text-secondary); font-size: 0.9rem;">Upload a photo and describe your lost or found item</p>
                     </div>
                     <div style="padding: 20px;">
-                        <div style="font-size: 2.5rem; margin-bottom: 12px;">🤖</div>
                         <h3 style="margin-bottom: 8px;">2. AI Analysis</h3>
                         <p style="color: var(--text-secondary); font-size: 0.9rem;">Our AI extracts features and finds potential matches</p>
                     </div>
                     <div style="padding: 20px;">
-                        <div style="font-size: 2.5rem; margin-bottom: 12px;">🎉</div>
                         <h3 style="margin-bottom: 8px;">3. Reunite</h3>
                         <p style="color: var(--text-secondary); font-size: 0.9rem;">Confirm matches and get your item back</p>
                     </div>
@@ -179,7 +172,7 @@ function renderItemCard(item) {
             <div class="item-card-body">
                 <div class="item-card-title">${escapeHtml(item.title)}</div>
                 <div class="item-card-meta">
-                    <span>📍 ${escapeHtml(item.location)}</span>
+                    <span>${escapeHtml(item.location)}</span>
                     <span>•</span>
                     <span>${formatDate(item.date_time)}</span>
                 </div>
@@ -197,11 +190,10 @@ function renderItemCard(item) {
 function renderReportForm(type) {
     const isLost = type === 'lost';
     const title = isLost ? 'Report Lost Item' : 'Report Found Item';
-    const icon = isLost ? '🔴' : '🟢';
 
     return `
         <div class="page-header">
-            <h1>${icon} ${title}</h1>
+            <h1>${title}</h1>
             <p>Our AI will analyze the image and find potential matches</p>
         </div>
 
@@ -211,11 +203,11 @@ function renderReportForm(type) {
                     <div class="form-group">
                         <label class="form-label">Photo ${isLost ? '(of the lost item)' : '(of the found item)'}</label>
                         <div class="file-upload" id="fileUpload" onclick="document.getElementById('imageInput').click()">
-                            <div class="file-upload-icon">📷</div>
                             <div class="file-upload-text">Click or drag to upload an image</div>
                             <input type="file" id="imageInput" accept="image/*" onchange="previewImage(this)">
                         </div>
                         <div id="filePreview"></div>
+                        <div class="form-hint">Tip: you can also paste a screenshot or image with Ctrl+V (⌘V on Mac)</div>
                     </div>
 
                     <div class="form-group">
@@ -256,13 +248,12 @@ function renderReportForm(type) {
 function renderBrowse(type) {
     const isLost = type === 'lost';
     const title = isLost ? 'Lost Items' : 'Found Items';
-    const icon = isLost ? '🔴' : '🟢';
 
     const items = state.items.filter(i => i.type === type && i.status === 'active');
 
     return `
         <div class="page-header">
-            <h1>${icon} ${title}</h1>
+            <h1>${title}</h1>
             <p>Browse all ${type} items on campus</p>
         </div>
 
@@ -280,7 +271,7 @@ function renderBrowse(type) {
         </div>
 
         <div id="itemsList">
-            ${items.length ? `<div class="items-grid">${items.map(item => renderItemCard(item)).join('')}</div>` : '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No items found</div></div>'}
+            ${items.length ? `<div class="items-grid">${items.map(item => renderItemCard(item)).join('')}</div>` : '<div class="empty-state"><div class="empty-state-text">No items found</div></div>'}
         </div>
     `;
 }
@@ -290,7 +281,7 @@ function renderMatches() {
 
     return `
         <div class="page-header">
-            <h1>🔗 Potential Matches</h1>
+            <h1>Potential Matches</h1>
             <p>AI-discovered matches between lost and found items</p>
         </div>
 
@@ -304,7 +295,7 @@ function renderMatches() {
         </div>
 
         <div id="matchesList">
-            ${matches.length ? matches.map(m => renderMatchCard(m)).join('') : '<div class="empty-state"><div class="empty-state-icon">🔗</div><div class="empty-state-text">No matches found</div></div>'}
+            ${matches.length ? matches.map(m => renderMatchCard(m)).join('') : '<div class="empty-state"><div class="empty-state-text">No matches found</div></div>'}
         </div>
     `;
 }
@@ -354,12 +345,12 @@ function renderMatchCard(m, compact = false) {
 
             <div class="match-items">
                 <div class="match-item" onclick="viewItem(${m.lost_item_id})" style="cursor: pointer;">
-                    <div class="match-item-label">🔴 Lost Item</div>
+                    <div class="match-item-label">Lost Item</div>
                     <div class="match-item-title">${escapeHtml(lostItem.title || 'Unknown')}</div>
                     <div class="match-item-meta">${escapeHtml(lostItem.location || '')} • ${formatDate(lostItem.date_time)}</div>
                 </div>
                 <div class="match-item" onclick="viewItem(${m.found_item_id})" style="cursor: pointer;">
-                    <div class="match-item-label">🟢 Found Item</div>
+                    <div class="match-item-label">Found Item</div>
                     <div class="match-item-title">${escapeHtml(foundItem.title || 'Unknown')}</div>
                     <div class="match-item-meta">${escapeHtml(foundItem.location || '')} • ${formatDate(foundItem.date_time)}</div>
                 </div>
@@ -379,9 +370,9 @@ function renderMatchCard(m, compact = false) {
             </div>
 
             <div class="match-actions">
-                <button class="btn btn-sm btn-secondary" onclick="updateMatchStatus(${m.id}, 'confirmed')">✓ Confirmed Match</button>
-                <button class="btn btn-sm btn-outline" onclick="updateMatchStatus(${m.id}, 'rejected')">✗ Not a Match</button>
-                <button class="btn btn-sm btn-primary" onclick="openContactRequest(${m.id})">📧 Contact / Claim</button>
+                <button class="btn btn-sm btn-secondary" onclick="updateMatchStatus(${m.id}, 'confirmed')">Confirmed Match</button>
+                <button class="btn btn-sm btn-outline" onclick="updateMatchStatus(${m.id}, 'rejected')">Not a Match</button>
+                <button class="btn btn-sm btn-primary" onclick="openContactRequest(${m.id})">Contact / Claim</button>
             </div>
         </div>
     `;
@@ -402,9 +393,9 @@ function renderItemDetail(item) {
                 <div class="detail-title">${escapeHtml(item.title)}</div>
                 <div class="detail-meta">
                     <span class="badge ${statusClass}">${statusText}</span>
-                    <span>📍 ${escapeHtml(item.location)}</span>
-                    <span>📅 ${formatDate(item.date_time)}</span>
-                    ${item.category ? `<span>🏷️ ${escapeHtml(item.category)}</span>` : ''}
+                    <span>${escapeHtml(item.location)}</span>
+                    <span>${formatDate(item.date_time)}</span>
+                    ${item.category ? `<span>${escapeHtml(item.category)}</span>` : ''}
                 </div>
             </div>
         </div>
@@ -419,7 +410,7 @@ function renderItemDetail(item) {
         <div class="detail-section">
             <div class="detail-section-title">AI Analysis</div>
             <div class="ai-analysis">
-                <div class="ai-analysis-header">🤖 AI-Generated Tags</div>
+                <div class="ai-analysis-header">AI-Generated Tags</div>
                 <div class="ai-analysis-grid">
                     <div class="ai-analysis-item">
                         <div class="ai-analysis-label">Object Type</div>
@@ -480,7 +471,7 @@ function renderItemDetail(item) {
         <div class="detail-section">
             <div class="detail-section-title">Actions</div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button class="btn btn-sm btn-primary" onclick="openContactRequestForItem(${item.id})">📧 Contact / Claim</button>
+                <button class="btn btn-sm btn-primary" onclick="openContactRequestForItem(${item.id})">Contact / Claim</button>
                 <button class="btn btn-sm btn-outline" onclick="closeModal()">Close</button>
             </div>
         </div>
@@ -488,8 +479,8 @@ function renderItemDetail(item) {
 }
 
 function getCategoryIcon(category) {
-    const icons = { electronics: '📱', clothing: '👕', accessories: '👜', books: '📚', sports: '⚽', other: '📦' };
-    return icons[category] || '📦';
+    const icons = { electronics: 'E', clothing: 'C', accessories: 'A', books: 'B', sports: 'S', other: 'O' };
+    return icons[category] || 'O';
 }
 
 async function loadDashboard() {
@@ -559,7 +550,7 @@ async function updateMatchStatus(matchId, status) {
 function openContactRequest(matchId) {
     openModal(`
         <div class="page-header">
-            <h1>📧 Contact / Claim</h1>
+            <h1>Contact / Claim</h1>
             <p>Send a message to the other party. Your contact info will be shared only after approval.</p>
         </div>
         <form onsubmit="submitContactRequest(event, ${matchId})">
@@ -601,6 +592,71 @@ async function submitContactRequest(event, matchId) {
     } catch (e) {
         showToast('Failed to send request', 'error');
     }
+}
+
+const PASTED_IMAGE_EXTENSIONS = {
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+    'image/webp': '.webp',
+    'image/bmp': '.bmp',
+};
+
+function normalizePastedFile(file) {
+    const name = file.name || '';
+    if (/\.[a-z0-9]+$/i.test(name)) {
+        return file;
+    }
+    const ext = PASTED_IMAGE_EXTENSIONS[file.type] || '.png';
+    return new File([file], `pasted-image-${Date.now()}${ext}`, { type: file.type });
+}
+
+function getClipboardImageFile(clipboardData) {
+    if (!clipboardData) return null;
+
+    const files = clipboardData.files;
+    if (files && files.length) {
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].type && files[i].type.indexOf('image/') === 0) {
+                return files[i];
+            }
+        }
+    }
+
+    const items = clipboardData.items;
+    if (items && items.length) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.kind === 'file' && item.type && item.type.indexOf('image/') === 0) {
+                const file = item.getAsFile();
+                if (file) return file;
+            }
+        }
+    }
+
+    return null;
+}
+
+function handleImagePaste(event) {
+    const imageInput = document.getElementById('imageInput');
+    const filePreview = document.getElementById('filePreview');
+    if (!imageInput || !filePreview) return;
+
+    const file = getClipboardImageFile(event.clipboardData);
+    if (!file) return;
+
+    event.preventDefault();
+
+    try {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(normalizePastedFile(file));
+        imageInput.files = dataTransfer.files;
+    } catch (e) {
+        return;
+    }
+
+    previewImage(imageInput);
 }
 
 function previewImage(input) {
@@ -671,7 +727,7 @@ function filterItems(search, type) {
 
     document.getElementById('itemsList').innerHTML = items.length
         ? `<div class="items-grid">${items.map(item => renderItemCard(item)).join('')}</div>`
-        : '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No items found</div></div>';
+        : '<div class="empty-state"><div class="empty-state-text">No items found</div></div>';
 }
 
 function filterByCategory(category, type) {
@@ -682,14 +738,14 @@ function filterByCategory(category, type) {
 
     document.getElementById('itemsList').innerHTML = items.length
         ? `<div class="items-grid">${items.map(item => renderItemCard(item)).join('')}</div>`
-        : '<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No items found</div></div>';
+        : '<div class="empty-state"><div class="empty-state-text">No items found</div></div>';
 }
 
 function filterMatches(status) {
     const matches = state.matches.filter(m => !status || m.status === status);
     document.getElementById('matchesList').innerHTML = matches.length
         ? matches.map(m => renderMatchCard(m)).join('')
-        : '<div class="empty-state"><div class="empty-state-icon">🔗</div><div class="empty-state-text">No matches found</div></div>';
+        : '<div class="empty-state"><div class="empty-state-text">No matches found</div></div>';
 }
 
 async function render() {
@@ -731,7 +787,7 @@ async function render() {
                 app.innerHTML = renderDashboard();
         }
     } catch (e) {
-        app.innerHTML = `<div class="empty-state"><div class="empty-state-icon">⚠️</div><div class="empty-state-text">Something went wrong</div><div class="empty-state-hint">${escapeHtml(e.message)}</div></div>`;
+        app.innerHTML = `<div class="empty-state"><div class="empty-state-text">Something went wrong</div><div class="empty-state-hint">${escapeHtml(e.message)}</div></div>`;
     }
 }
 
@@ -743,6 +799,8 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 document.getElementById('navToggle').addEventListener('click', () => {
     document.querySelector('.nav-links').classList.toggle('active');
 });
+
+document.addEventListener('paste', handleImagePaste);
 
 window.addEventListener('hashchange', render);
 

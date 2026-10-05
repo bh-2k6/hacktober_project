@@ -8,7 +8,7 @@ from app.database import init_db
 from app.routes import items, matches, dashboard
 
 app = FastAPI(
-    title="AI Lost & Found",
+    title="TraceBack",
     description="AI-powered lost and found matching for college campuses",
     version="1.0.0",
 )
@@ -30,7 +30,7 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "ai-lost-and-found"}
+    return {"status": "ok", "service": "traceback"}
 
 
 if __name__ == "__main__":
