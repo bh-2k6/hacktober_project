@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lost & Found</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="brand-icon">🔍</span>
+            <span class="brand-text">AI Lost & Found</span>
+        </div>
+        <div class="nav-links">
+            <a href="#/" class="nav-link" data-route="dashboard">Dashboard</a>
+            <a href="#/report/lost" class="nav-link" data-route="report-lost">Report Lost</a>
+            <a href="#/report/found" class="nav-link" data-route="report-found">Report Found</a>
+            <a href="#/browse/lost" class="nav-link" data-route="browse-lost">Lost Items</a>
+            <a href="#/browse/found" class="nav-link" data-route="browse-found">Found Items</a>
+            <a href="#/matches" class="nav-link" data-route="matches">Matches</a>
+        </div>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <main class="main-content" id="app">
+        <div class="loading-screen">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-content" id="modalContent"></div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
